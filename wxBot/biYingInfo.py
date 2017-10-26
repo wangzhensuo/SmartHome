@@ -15,7 +15,7 @@ def getPicInfo():
         #print(response.status,":",response.reason)
         #print(response.read())
         html_text=response.read()
-        html_text=html_text.decode("utf-8")#玛德制杖还要解码，
+        html_text=html_text.decode("utf-8")
     except Exception as e:
         print(e)
         sys.exit(0)
@@ -44,5 +44,9 @@ def getPicInfo():
     except Exception as e:
         print(e)
         sys.exit(0)
-    print(finalResult)
+        print(finalResult)
+        with open('biYingInfo.txt','a',encoding='utf8') as fh:
+            fh.write(finalResult)
+            fh.close()
+				
     return finalResult

@@ -1,17 +1,26 @@
 from wxpy import *
 import csv
 import led
+import biYingInfo
 import tuling
-import ssl
-import random
-kefu=['周芷若',’小昭‘，’赵敏郡主‘，’木婉清‘，’如花‘，’如月‘，‘秋香’]
+import os
+import time
+from threading import Timer
+
+#def sendPic():
+#    friends = bot.friends()
+#    for my_friend in friends:
+#        print(my_friend)
+        #my_friend.send_image("image.jpg", media_id=None)
+        #my_friend.send(biyingInfoStr)
+print("------1-----")
 addfriend_request = '加好友'  #自动添加好友的条件
-admin_request_name = '改成自己的'    #定义管理员微信名（必须是机器人的好友）  ps：raw_content字段需要自己手动更改微信名，微信号
-admin_request_num = '改成自己的'   #定义管理员微信号（必须是机器人的好友）
+admin_request_name = 'w201710'    #定义管理员微信名（必须是机器人的好友）  ps：raw_content字段需要自己手动更改微信名，微信号
+admin_request_num = 'milestoners'   #定义管理员微信号（必须是机器人的好友）
 invite_text = "您好呀!我是智能管家，暂时有如下功能：\n 回复“开灯”： 开灯\n 回复“关灯”：关灯\n 回复“陪聊”：进入智能聊天模式 \n 回复“退出陪聊”：退出智能聊天模式" 
 tulingFunc = "生活百科, 图片搜索, 数字计算 , 中英互译, 聊天对话, \
 笑话故事, 成语接龙, 新闻资讯, 星座运势, 天气查询, 菜谱大全,快递查询,列车查询,餐厅酒店,实时路况,果蔬报价,汽油报价,股票查询,城市邮编"
-
+print("------2----")
 chat_mode = 0
 #invite_text = "您好呀!回复'功能 + 数字'获取对应功能\n1.我要加群\n2.我要加入协会\n3.我要购买鞋子\n4.了解我们\n5.我需要帮助\n例如：要获取我要加群的功能时回复\n\n功能1"  #任意回复获取的菜单
 #group_name = '测试群'    #定义要查找群的名字
@@ -21,17 +30,23 @@ menu_3 = '功能3'  #菜单选项3
 menu_4 = '功能4'  #菜单选项4  
 menu_5 = '功能5'  #菜单选项5 
 csv_1 = 'test.csv'   #表格1
-
+print("------3-----")
 
 bot = Bot(cache_path = True)
 bot.enable_puid()  #启用聊天对象的puis属性
 #adminer = bot.friends(update=True).search(admin_request_name)[0]
 #my_group = bot.groups(update=True).search(group_name)[0] #wq
 #group_admin = my_group.members.search(admin_request_name)[0]
-
+print("------4-----")
 
 admin_puids = frozenset(['XX', 'YY'])   #不可变集合
 admins = list(map(lambda x: bot.friends().search(puid=x), admin_puids))
+
+#biyingInfoStr=biYingInfo.getPicInfo()
+#t = Timer(10.0,sendPic)
+#t.start()
+
+print("-------5----------")
 
 def invite(user):
     groups = sorted(bot.groups(update=True).search(group_name),
@@ -110,36 +125,42 @@ def auto_accept_friends(msg):
 
 #注册自动回复好友消息
 @bot.register(Friend, msg_types=TEXT)
-@bot.register(Friend, msg_types=TEXT)
 def exist_friends(msg):
-
+    #print("----6------------")
+    print(msg.text)
+    #msg.sender.send_image('home1.jpg')
+    print("--------7---------")
+    #msg.sender.send_image('biying.jpg')
+    #print("--------8---------")
     global chat_mode
     #'''
     if '陪聊' in msg.text:
-        print("----开始陪%s聊天-----"% msg.sender.nick_name)
         chat_mode = 1
-        msg.sender.send(msg.sender.nick_name+"呀，欢迎与’+kefu[random.randon(1,8,1)]+‘进入智能聊天模式")
+        msg.sender.send("进入陪聊模式,回复“退出”，退出陪聊模式")
         msg.sender.send("我可以查以下信息：\n"+tulingFunc)
     if '退出' in msg.text:
         chat_mode = 0
         msg.sender.send("退出智能聊天模式")
-        print("----退出与%s聊天-----"% msg.sender.nick_name)
     if chat_mode == 1:
         tulingRly=tuling.tuling_reply(msg)
         msg.sender.send(tulingRly)
-        print("---6------")
         return
     #'''
     if '开灯' in msg.text and chat_mode ==0:
         led.turnOnLed()
-        print("-----5----")
-        msg.sender.send('已开灯 ,'+msg.sender.nick_name)
-        print()
-        #msg.sender.send_image("biying.jpg", media_id=None)
+        msg.sender.send('已开灯,'+msg.sender.nick_name)
+        os.system("./12864 "+msg.sender.nick_name.replace(' ',''))
+        os.system("raspistill -t 500 -q 5 -o home1.jpg")
+        time.sleep(1)
+        msg.sender.send_image('home1.jpg')
+        #msg.sender.send_image('biying.jpg')
     elif '关灯' in msg.text and chat_mode ==0:
         led.turnOffLed()
-        print("-----6----")
-        msg.sender.send('已关灯')
+        msg.sender.send('已关灯,'+msg.sender.nick_name)
+        os.system("./12864 "+msg.sender.nick_name.replace(' ',''))
+        os.system("raspistill -t 500 -q 5 -o home1.jpg")
+        time.sleep(1)
+        msg.sender.send_image('home1.jpg', media_id=None)
     elif msg.text and chat_mode ==1:
         tulingRly=tuling.tuling_reply(msg)
         msg.sender.send(tulingRly)

@@ -6,7 +6,7 @@ import itchat
 笑话大全,故事大全,成语接龙,新闻资讯,星座运势,脑筋急转弯,歇后语,绕口令,顺口溜,   
 天气查询,菜谱大全,快递查询,列车查询,日期查询,附近餐厅,附近酒店,实时路况,果蔬报价,汽油报价,股票查询,城市邮编
 '''
-KEY = '71f28bf79c820df10d39b4074345ef8c'#'71f28bf79c820df10d39b4074345ef8c'
+KEY = '7b60f1286b404e2d92e47f3e309d060c'#'71f28bf79c820df10d39b4074345ef8c'
 
 def get_response(msg):
     print("=======1======")
@@ -19,7 +19,7 @@ def get_response(msg):
         'userid' : 'wechat-robot',
     }
     try:
-        r = requests.post(apiUrl, data=data, verify=False).json()
+        r = requests.post(apiUrl, data=data).json()
         # 字典的get方法在字典没有'text'值的时候会返回None而不会抛出异常
         return r.get('text')
     # 为了防止服务器没有正常响应导致程序异常退出，这里用try-except捕获了异常
