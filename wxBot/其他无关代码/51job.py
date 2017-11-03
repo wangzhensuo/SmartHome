@@ -101,7 +101,7 @@ def get_index_url(url):
     wbdata = requests.get(url, headers=header).content
     soup = BeautifulSoup(wbdata, 'html.parser', from_encoding="GBK")
     links = soup.select('html > body > div.dw_wp > div > div.el > p.t1 > span > a')
-    # time.sleep(1)
+    time.sleep(1)
     for link in links:
         try:
             global data_count
@@ -115,7 +115,7 @@ def get_index_url(url):
             job_name = soup2.select(
                 'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div.in > div.cn > h1')[0].text.replace(' ', '')
             # print(job_name)
-            print('-------1--------')
+            # print('-------1--------')
             gongzi = "NONE"
             gongzi = soup2.select(
                 'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div > div.cn > strong')[0].text
@@ -123,23 +123,24 @@ def get_index_url(url):
             jieshao = soup2.select(
                 'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tCompany_main > div.tBorderTop_box > div.bmsg.job_msg.inbox')[0].text.strip().replace("\n", "").replace(' ', '').replace("\t", "").replace("\r", "")
             # print(jieshao)
-            print('-----2----------')
+            # print('-----2----------')
             company_name='NONE'
             company_name = soup2.select('body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div > div.cn > p.cname > a')[0].text.replace("\n", "").replace("\r", "")
 
-            print('['+company_name+']')
-            print('------3---------')
+            # print('------3---------')
             company_addr='NONE'
                                                #body > div.tCompanyPage > div.tCompany_center.clearfix > div.tCompany_main > div:nth-child(3) > div > p
             company_addr = soup2.select('.fp')[-1].text.replace("\n", "").replace("\r", "")
             # print(company_addr)
-            print('------4---------')
+            # print('------4---------')
         except:
             print("not found!"+page_url,company_name,company_addr,gongzi)
+            with open("C:/log.csv", 'a', encoding='utf-8') as f:
+                f.write("not found!"+','+page_url+','+company_name+','+company_addr+','+gongzi)
             pass
-        with open("C:/aaaaaaaaa.csv", 'a', encoding='utf-8') as f:
+        with open("C:/51data.csv", 'a', encoding='utf-8') as f:
             try:
-                print('---------w--')
+                # print('---------w--')
                 f.write(job_name)
                 f.write(',')
                 f.write(company_name)
@@ -185,7 +186,7 @@ if __name__ == "__main__":
     try:
         pool = multiprocessing.Pool(processes=8)
         for i in range(1, 1105):
-            print('第'+str(i)+'大页')
+            # print('第'+str(i)+'大页')
             url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=230300%2C00&district=000000&funtype=0000&industrytype=00&issuedate=9&providesalary=99&keywordtype=2&curr_page=" + str(
                 i)
             pool.apply_async(get_index_url, (url,))  # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
