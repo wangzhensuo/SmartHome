@@ -11,7 +11,6 @@ import requests
 import multiprocessing
 import random
 from bs4 import BeautifulSoup
-
 user_agent_list = [
     "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1",
     "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
@@ -92,9 +91,8 @@ user_agent_list = [
 #     'Connection': 'keep-alive',
 # }
 
-
+data_count =0
 def get_index_url(url):
-    # header=user_agent_list[random.randint(1,59)]
     header = {
         'User-Agent': user_agent_list[random.randint(1,59)],
         'Connection': 'keep-alive',
@@ -103,41 +101,50 @@ def get_index_url(url):
     wbdata = requests.get(url, headers=header).content
     soup = BeautifulSoup(wbdata, 'html.parser', from_encoding="GBK")
     links = soup.select('html > body > div.dw_wp > div > div.el > p.t1 > span > a')
-    time.sleep(1)
+    # time.sleep(1)
     for link in links:
         try:
+            global data_count
+            data_count = data_count + 1
+            print('第' + str(data_count) + '子页面')
             page_url = link.get('href')
             wbdata2 = requests.get(page_url, headers=header).content
             soup2 = BeautifulSoup(wbdata2, 'html.parser',
-                                  from_encoding="GBK")  # body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div > div.cn > h1
-            name1 = ''
-            name1 = soup2.select(
-                'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div.in > div.cn > h1')
-            if not name1:
-                name = "NONE"
-            else:
-                name = name1[0].text.strip().replace("\n", "").replace(' ', '').replace("\t", "").replace("\r", "").replace("(", "").replace(")", "")
+                                  from_encoding="GBK")
+            job_name = "NONE"
+            job_name = soup2.select(
+                'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div.in > div.cn > h1')[0].text.replace(' ', '')
+            # print(job_name)
+            print('-------1--------')
+            gongzi = "NONE"
+            gongzi = soup2.select(
+                'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div > div.cn > strong')[0].text
+            jieshao = "NONE"
+            jieshao = soup2.select(
+                'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tCompany_main > div.tBorderTop_box > div.bmsg.job_msg.inbox')[0].text.strip().replace("\n", "").replace(' ', '').replace("\t", "").replace("\r", "")
+            # print(jieshao)
+            print('-----2----------')
+            company_name='NONE'
+            company_name = soup2.select('body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div > div.cn > p.cname > a')[0].text.replace("\n", "").replace("\r", "")
 
-            gongzi1 = ''
-            gongzi1 = soup2.select(
-                'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div > div.cn > strong')
-            if not gongzi1:
-                gongzi = "NONE"
-            else:
-                gongzi = gongzi1[0].text
-
-            jieshao1 = ''
-            jieshao1 = soup2.select(
-                'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tCompany_main > div.tBorderTop_box > div.bmsg.job_msg.inbox')
-            if not jieshao1:
-                jieshao = "NONE"
-            else:
-                jieshao = jieshao1[0].text.strip().replace("\n", "").replace(' ', '').replace("\t", "").replace("\r", "")
+            print('['+company_name+']')
+            print('------3---------')
+            company_addr='NONE'
+                                               #body > div.tCompanyPage > div.tCompany_center.clearfix > div.tCompany_main > div:nth-child(3) > div > p
+            company_addr = soup2.select('.fp')[-1].text.replace("\n", "").replace("\r", "")
+            # print(company_addr)
+            print('------4---------')
         except:
+            print("not found!"+page_url,company_name,company_addr,gongzi)
             pass
-        with open("C:/data7.csv", 'a', encoding='utf-8') as f:
+        with open("C:/aaaaaaaaa.csv", 'a', encoding='utf-8') as f:
             try:
-                f.write(name)
+                print('---------w--')
+                f.write(job_name)
+                f.write(',')
+                f.write(company_name)
+                f.write(',')
+                f.write(company_addr)
                 f.write(',')
                 gongzi_p = str2float(gongzi)
                 f.write(str(gongzi_p[0]))
@@ -148,15 +155,16 @@ def get_index_url(url):
                 f.write(',')
                 f.write(jieshao)
                 f.write(',' + "\n")
+
             except:
                 print("error!!!")
-                time.sleep(2)
+                print((job_name, gongzi, page_url, url, jieshao))
                 pass
 
 def str2float(str_data):
     # str_data="2.5-3千/月"
     gz = re.findall("(\d.*\d*)-(\d.*\d*)千", str_data)
-    if not gz:
+    if not gz:#如果找不
         min_gz = 0
         max_gz = 0
         gz_w = re.findall("(\d.*\d*)-(\d.*\d*)万", str_data)
@@ -164,8 +172,9 @@ def str2float(str_data):
             min_gz = 0
             max_gz = 0
         else:
-            min_gz = float(gz[0][0]) * 10000
-            max_gz = float(gz[0][1]) * 10000
+            # print(gz_w)
+            min_gz = float(gz_w[0][0]) * 10000
+            max_gz = float(gz_w[0][1]) * 10000
     else:
         min_gz = float(gz[0][0]) * 1000
         max_gz = float(gz[0][1]) * 1000
@@ -173,15 +182,14 @@ def str2float(str_data):
 
 
 if __name__ == "__main__":
-    pool = multiprocessing.Pool(processes=8)
-    for i in range(1, 1097):
-        url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=230300%2C00&district=000000&funtype=0000&industrytype=00&issuedate=9&providesalary=99&keywordtype=2&curr_page=" + str(
-            i)
-        pool.apply_async(get_index_url, (url,))  # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
-    pool.close()
-    pool.join()  # 调用join之前，先调用close函数，否则会出错。执行完close后不会有新的进程加入到pool,join函数等待所有子进程结束
-'''
-解决介绍多行问题；
-解决出现问题停止运行问题；
-下一步：调查为什么有些网页不能爬取。
-'''
+    try:
+        pool = multiprocessing.Pool(processes=8)
+        for i in range(1, 1105):
+            print('第'+str(i)+'大页')
+            url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=230300%2C00&district=000000&funtype=0000&industrytype=00&issuedate=9&providesalary=99&keywordtype=2&curr_page=" + str(
+                i)
+            pool.apply_async(get_index_url, (url,))  # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
+        pool.close()
+        pool.join()  # 调用join之前，先调用close函数，否则会出错。执行完close后不会有新的进程加入到pool,join函数等待所有子进程结束
+    except:
+        print('abort')
