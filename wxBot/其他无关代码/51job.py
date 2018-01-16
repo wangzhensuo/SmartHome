@@ -42,6 +42,15 @@ def get_index_url(url):
             page_url = link.get('href')
             wbdata2 = requests.get(page_url, headers=header).content
             soup2 = BeautifulSoup(wbdata2, 'html.parser',from_encoding="GBK")
+			company_info = "NONE"
+            company_info = soup2.select('html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div > div.cn > p.msg.ltype')[0].text.strip().replace(" ", "").replace(' ', '').replace("\t", "").replace("\r", "").replace(",",".").replace('\'','')
+            print("======================"+company_info+"=================")
+            company_cate_list = company_info.split('|')
+            company_kind = company_cate_list[0]
+            company_scale = company_cate_list[1]
+            company_industry = company_cate_list[2]
+            print(company_kind,company_scale,company_industry)
+			
             job_name = "NONE"
             job_name = soup2.select(
                 'html > body > div.tCompanyPage > div.tCompany_center.clearfix > div.tHeader.tHjob > div.in > div.cn > h1')[0].text.strip().replace("\n", "").replace(' ', '').replace("\t", "").replace("\r", "").replace(",",".").replace('\'','')
