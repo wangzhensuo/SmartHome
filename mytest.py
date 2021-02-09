@@ -67,3 +67,49 @@ for t in threads:
  
 end = time.time()
 print('Queue多线程批量执行时间为：', end - start)
+#----------------------------------------------------
+# -*- coding: utf-8 -*-
+# (C) Guangcai Ren <renguangcai@jiaaocap.com>
+# All rights reserved
+# create time '2019/6/26 14:41'
+import math
+import random
+import time
+from threading import Thread
+
+_result_list = []
+
+
+def split_df():
+    # 线程列表
+    thread_list = []
+    # 需要处理的数据
+    _l = [i for i in range(100)]
+    # 每个线程处理的数据大小
+    split_count = 2
+    # 需要的线程个数
+    times = math.ceil(len(_l) / split_count)
+    count = 0
+    for item in range(times):
+        _list = _l[count: count + split_count]
+        # 线程相关处理
+        thread = Thread(target=work, args=(item, _list,))
+        thread_list.append(thread)
+        # 在子线程中运行任务
+        thread.start()
+        count += split_count
+
+    # 线程同步，等待子线程结束任务，主线程再结束
+    for _item in thread_list:
+        _item.join()
+
+
+def work(df, _list):
+    for i in _list:
+        tmp = i + 100
+        _result_list.append(tmp)
+
+
+if __name__ == '__main__':
+    split_df()
+    print(len(_result_list), _result_list)
