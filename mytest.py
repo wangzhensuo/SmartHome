@@ -113,3 +113,61 @@ def work(df, _list):
 if __name__ == '__main__':
     split_df()
     print(len(_result_list), _result_list)
+    
+    
+    
+    
+#--------------------------------------------------
+
+# import sys,json
+# from collections import OrderedDict
+# def load_message_config():
+#     msg_file = 'message.json'
+#     with open(sys.path[0]+'/'+msg_file,'r') as f:
+#         send_message = json.loads(f.read())
+#         print(len(str(send_message)))
+#         print(str(send_message))
+
+# load_message_config()
+
+# -------------------------------------
+import re
+s=''
+with open( './url.txt','r',encoding='utf-8' ) as f:
+    s=f.read()
+# print(s)
+n = re.findall("src=\"(.*?)\"", s)
+n = [i.replace('amp;','') for i in n if 'zoom' in i]
+# print(n)
+# for i in n:
+#     print(i)
+import requests
+
+# for i,l in enumerate(n):
+#     url = l
+#     response = requests.get(url)
+#     img = response.content
+#     with open( './{}.jpg'.format(i),'wb' ) as f:
+#         f.write(img)
+n = [i for i in range(0,8)]
+# ------------------------------------------
+from fpdf import FPDF
+from PIL import Image
+import os
+
+def makePdf(pdfFileName, listPages):
+	"""图片转PDF"""
+	cover = Image.open('0.jpg')
+	width, height = cover.size
+	pdf = FPDF(unit = "pt", format = [width, height])
+	for page in listPages:
+		pdf.add_page()
+		pdf.image(page, 0, 0)
+	pdf.output(pdfFileName, "F")
+
+imageIds = []
+print(imageIds)
+makePdf("result.pdf", [str(x) for i,x in enumerate(n)])
+
+    
+    
